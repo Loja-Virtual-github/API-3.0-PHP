@@ -133,7 +133,8 @@ abstract class AbstractRequest
                 break;
             case 400:
                 $exception = null;
-                $response  = json_decode($responseBody);
+                //$response  = json_decode($responseBody);
+                $response = json_decode(stripcslashes(trim($responseBody,'"')));
 
                 foreach ($response as $error) {
                     $cieloError = new CieloError($error->Message, $error->Code);
