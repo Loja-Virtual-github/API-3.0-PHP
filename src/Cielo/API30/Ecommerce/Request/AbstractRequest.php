@@ -133,8 +133,8 @@ abstract class AbstractRequest
                 break;
             case 400:
                 $exception = null;
-                //$response  = json_decode($responseBody);
-                $response = json_decode(stripcslashes(trim($responseBody,'"')));
+                $response  = json_decode($responseBody);
+
                 if (!empty($response)) {
                     foreach ($response as $error) {
                         $cieloError = new CieloError($error->Message, $error->Code);
@@ -142,7 +142,11 @@ abstract class AbstractRequest
                         $exception->setCieloError($cieloError);
                     }
 
-                    throw $exception;
+                    if (!empty($exception)) {
+                        throw $exception;
+                    }
+
+                    throw new \Exception($responseBody);
                 } else {
                     throw new CieloRequestException('Unknown response ('. $responseBody .')', 404, null);
                 }
