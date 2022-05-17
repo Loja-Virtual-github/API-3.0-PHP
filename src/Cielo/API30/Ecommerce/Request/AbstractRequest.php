@@ -135,14 +135,17 @@ abstract class AbstractRequest
                 $exception = null;
                 //$response  = json_decode($responseBody);
                 $response = json_decode(stripcslashes(trim($responseBody,'"')));
+                if (!empty($response)) {
+                    foreach ($response as $error) {
+                        $cieloError = new CieloError($error->Message, $error->Code);
+                        $exception  = new CieloRequestException('Request Error', $statusCode, $exception);
+                        $exception->setCieloError($cieloError);
+                    }
 
-                foreach ($response as $error) {
-                    $cieloError = new CieloError($error->Message, $error->Code);
-                    $exception  = new CieloRequestException('Request Error', $statusCode, $exception);
-                    $exception->setCieloError($cieloError);
+                    throw $exception;
+                } else {
+                    throw new CieloRequestException('Unknown response ('. $responseBody .')', 404, null);
                 }
-
-                throw $exception;
             case 404:
                 throw new CieloRequestException('Resource not found', 404, null);
             default:
